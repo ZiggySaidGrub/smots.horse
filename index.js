@@ -31,12 +31,12 @@ let flipped = [];
 });
 
 const colorsOptions = [
-  'red',
-  'yellow',
-  'green',
-  'blue',
-  'magenta',
-  'cyan',
+  'white',
+  'white',
+  'white',
+  'white',
+  'white',
+  'white',
   'white'
 ];
 const numColors = colorsOptions.length;
@@ -58,26 +58,28 @@ function streamer(stream, opts) {
 
   function tick() {
     // clear screen
-    stream.push('\u001b[2J\u001b[3J\u001b[H');
+    stream.push('\u001b[38A');
 
     // color frame
-    const colorIdx = lastColor = selectColor(lastColor);
-    const coloredFrame = colors[colorsOptions[colorIdx]](frames[index]);
+    const coloredFrame = frames[index];
 
     // try to push; respect backpressure
     const ok = stream.push(coloredFrame);
     index = (index + 1) % frames.length;
-
+    
+    //setTimeout(tick, 33);
     if (ok) {
-      timer = setTimeout(tick, 70);
+      timer = setTimeout(tick, 20);
     } else {
-      stream.once('drain', () => {
-        timer = setTimeout(tick, 70);
-      });
+      /*stream.once('drain', () => {
+        timer = setTimeout(tick, 17);
+      });*/
+      timer = setTimeout(tick, 20);
     }
   }
 
   // start
+  stream.push('\u001b[2J\u001b[3J\u001b[H');
   tick();
 
   // cleanup function
@@ -100,12 +102,12 @@ const server = http.createServer((req, res) => {
     req.headers['user-agent'] &&
     !req.headers['user-agent'].includes('curl')
   ) {
-    res.writeHead(302, { Location: 'https://github.com/hugomd/parrot.live' });
-    return res.end();
+    res.writeHead(302, { Location: 'https://www.youtube.com/@smotsgaming' });
+    return res.end()
   }
 
   const stream = new Readable({ read() {} });
-  res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+  res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });  
   stream.pipe(res);
 
   // Start streaming with cleanup handler
@@ -114,6 +116,7 @@ const server = http.createServer((req, res) => {
 
   // Clean up when the client disconnects
   const onClose = () => {
+    stream.push("\u001b[49m");
     cleanupLoop();
     stream.destroy();
   };
@@ -121,7 +124,7 @@ const server = http.createServer((req, res) => {
   res.on('error', onClose);
 });
 
-const port = process.env.PARROT_PORT || 3000;
+const port = process.env.PORT || 3000;
 server.listen(port, err => {
   if (err) throw err;
   console.log(`Listening on http://localhost:${port}`);
