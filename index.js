@@ -102,7 +102,8 @@ const server = http.createServer((req, res) => {
     req.headers["user-agent"] &&
     !req.headers["user-agent"].includes("curl")
   ) {
-    res.writeHead(302, { Location: "https://www.youtube.com/@smotsgaming" });
+    if (getRandomInt(2) == 1) res.writeHead(302, { Location: "https://www.youtube.com/@smotsgaming" });
+    else res.writeHead(302, { Location: "https://twitch.tv/nova_exists" });
     return res.end();
   }
 
@@ -129,3 +130,7 @@ server.listen(port, (err) => {
   if (err) throw err;
   console.log(`Listening on http://localhost:${port}`);
 });
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
