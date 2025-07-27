@@ -92,13 +92,29 @@ const validateQuery = ({ flip }) => ({
 
 const server = http.createServer((req, res) => {
   if (req.url === "/thesilly"){
-    if (!fs.exists("silly.json")){
-      fs.writeFileSync("silly.json", JSON.stringify({counter:0}))
-    }
-    counter = JSON.parse(fs.readFileSync("silly.json"));
-    counter.counter++;
-    fs.writeFileSync(JSON.stringify(counter))
-    return res.end(JSON.stringify({ status: "ok" }));
+    if (req.method === "POST"){
+      if (!fs.exists("silly.json")){
+        fs.writeFileSync("silly.json", JSON.stringify({counter:0}))
+      }
+      counter = JSON.parse(fs.readFileSync("silly.json"));
+      counter.counter++;
+      fs.writeFileSync(JSON.stringify(counter))
+      return res.end(JSON.stringify({
+        status: "ok",
+        counter:JSON.parse(fs.readFileSync("silly.json")).counter
+      }))
+    } else if (req.method === "GET"){
+      if (!fs.exists("silly.json")){
+        return res.end(JSON.stringify({
+          status: "ok",
+          counter:0
+        }))
+      }
+      return res.end(JSON.stringify({
+        status: "ok",
+        counter:JSON.parse(fs.readFileSync("silly.json")).counter
+      }))
+    } else return res.end(JSON.stringify({ status: ":despair:" }));
   }
 
   // Healthcheck route
