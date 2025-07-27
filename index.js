@@ -91,6 +91,16 @@ const validateQuery = ({ flip }) => ({
 });
 
 const server = http.createServer((req, res) => {
+  if (req.url === "/thesilly"){
+    if (!fs.exists("silly.json")){
+      fs.writeFileSync("silly.json", JSON.stringify({counter:0}))
+    }
+    counter = JSON.parse(fs.readFileSync("silly.json"));
+    counter.counter++;
+    fs.writeFileSync(JSON.stringify(counter))
+    return res.end(JSON.stringify({ status: "ok" }));
+  }
+
   // Healthcheck route
   if (req.url === "/healthcheck") {
     res.writeHead(200, { "Content-Type": "application/json" });
